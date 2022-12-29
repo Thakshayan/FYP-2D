@@ -1,8 +1,8 @@
 # FYP-2D
 
-python -m venv packages
-packages\Scripts\activate
-git clone https://github.com/rcuocolo/PROSTATEx_masks
+python -m venv packages <br />
+packages\Scripts\activate <br />
+git clone https://github.com/rcuocolo/PROSTATEx_masks <br />
 
 # for GPU
 pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116

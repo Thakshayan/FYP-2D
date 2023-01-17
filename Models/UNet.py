@@ -66,8 +66,3 @@ class UNET(nn.Module):
 
         return self.final_conv(x)
 
-# def test():
-#     x = torch.randn((1, 1, 128, 128))
-#     model = UNET(in_channels=1, out_channels=1)
-#     preds = model(image1)
-#     explore_3dimage(image1,preds)

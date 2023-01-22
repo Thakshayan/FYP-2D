@@ -6,7 +6,7 @@ class UNet(nn.Module):
         super(UNet, self).__init__()
         
         # Encoder 1
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, padding=1)
+        self.conv1 = nn.Conv2d(1, 64, kernel_size=3, padding=1)
         self.conv2 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
         self.pool1 = nn.MaxPool2d(2)
 
@@ -44,6 +44,8 @@ class UNet(nn.Module):
         self.conv15 = nn.Conv2d(64, 1, kernel_size=1)
 
     def forward(self, x):
+
+        # x = torch.mean(x, dim=1)
         # Encoder 1
         x1 = self.conv1(x)
         x1 = self.conv2(x1)

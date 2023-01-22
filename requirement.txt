@@ -2,3 +2,4 @@ tqdm
 pandas
 ipywidgets
 matplotlib
+einops

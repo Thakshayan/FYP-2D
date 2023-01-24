@@ -1,6 +1,6 @@
+from torch.nn.modules.conv import Conv2d
 import torch
 import torch.nn as nn
-from .ViT import ViT
 
 def double_conv(in_channels, out_channels):
     return nn.Sequential(
@@ -11,7 +11,7 @@ def double_conv(in_channels, out_channels):
     )   
 
 
-class ViTNet(nn.Module):
+class ModifiedNet(nn.Module):
 
     def __init__(self):
         super().__init__()
@@ -30,12 +30,11 @@ class ViTNet(nn.Module):
         
         self.conv_last = nn.Conv2d(64,1, 1)
 
-        #Transformer
-        self.transformer1 = ViT(img_dim=32, in_channels=256, embedding_dim=256, block_num=1 )
-        self.transformer2 = ViT(img_dim=64, in_channels=128, embedding_dim=128, block_num=1 )
-        self.transformer3 = ViT(img_dim=128, in_channels=64, embedding_dim=64,block_num=1 )
-        
-        
+        self.e1_e3 = nn.Conv2d(64, 256, kernel_size=3, stride=2, padding=1)
+        self.conv_mid2 = nn.Conv2d(512, 256, kernel_size=3, stride=1, padding=1)
+
+        self.e2_e4 = nn.Conv2d(128, 512, kernel_size=3, stride=2, padding=1)
+        self.conv_mid1 = nn.Conv2d(1024, 512, kernel_size=3, stride=1, padding=1)
         
         
     def forward(self, x):
@@ -46,15 +45,28 @@ class ViTNet(nn.Module):
         x = self.maxpool(conv2)
         
         conv3 = self.dconv_down3(x)
-        x = self.maxpool(conv3)   
-        
+        x = self.maxpool(conv3) 
+
+
         x = self.dconv_down4(x)
-        
+
+        mid = self.e2_e4(conv2)
+        mid = self.maxpool(mid)
+        x = torch.cat([mid,x], dim=1)
+        x = self.conv_mid1(x)
+
+
         x = self.upsample(x)
-        x = torch.cat([x, conv3], dim=1)
+
+        mid = self.e1_e3(conv1)
+        mid = self.maxpool(mid)
+        mid = torch.cat([conv3,mid], dim=1)
+        mid = self.conv_mid2(mid)
+
+        x = torch.cat([x, mid], dim=1)
         
         x = self.dconv_up3(x)
-        x = self.upsample(x)      
+        x = self.upsample(x)        
         x = torch.cat([x, conv2], dim=1)       
 
         x = self.dconv_up2(x)
@@ -66,3 +78,9 @@ class ViTNet(nn.Module):
         out = self.conv_last(x)
         
         return out
+
+if __name__ == "__main__":
+  
+  x = ModifiedNet()
+  print(sum(p.numel() for p in x.parameters()))
+  print(x(torch.randn(1,1,128,128)).shape)

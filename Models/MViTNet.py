@@ -1,4 +1,3 @@
-from torch.nn.modules.conv import Conv2d
 import torch
 import torch.nn as nn
 from .ViT import ViT
@@ -13,7 +12,7 @@ def double_conv(in_channels, out_channels):
     )   
 
 
-class ModifiedNet(nn.Module):
+class MViTNet(nn.Module):
 
     def __init__(self):
         super().__init__()
@@ -90,8 +89,8 @@ class ModifiedNet(nn.Module):
         
         return out
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
   
-  x = ModifiedNet()
-  print(sum(p.numel() for p in x.parameters()))
-  print(x(torch.randn(1,1,128,128)).shape)
+#   x = ModifiedViTNet()
+#   print(sum(p.numel() for p in x.parameters()))
+#   print(x(torch.randn(1,1,128,128)).shape)

@@ -1,7 +1,7 @@
-
 from torch.nn.modules.conv import Conv2d
 import torch
 import torch.nn as nn
+
 
 def double_conv(in_channels, out_channels):
     return nn.Sequential(
@@ -38,6 +38,11 @@ class ModifiedNet(nn.Module):
         self.conv_mid1 = nn.Conv2d(1024, 512, kernel_size=3, stride=1, padding=1)
         
         
+        #Transformer
+        self.transformer1 = ViT(img_dim=32, in_channels=256, embedding_dim=256, block_num=12 )
+        self.transformer2 = ViT(img_dim=16, in_channels=512, embedding_dim=512, block_num=12 )
+       
+
     def forward(self, x):
         conv1 = self.dconv_down1(x)
         x = self.maxpool(conv1)
@@ -55,15 +60,19 @@ class ModifiedNet(nn.Module):
         mid = self.maxpool(mid)
         x = torch.cat([mid,x], dim=1)
         x = self.conv_mid1(x)
-
-
+        x = self.transformer2(x)
+        print(x.shape)
         x = self.upsample(x)
+        #x = self.transformer1(x)
+        
+        
+
 
         mid = self.e1_e3(conv1)
         mid = self.maxpool(mid)
         mid = torch.cat([conv3,mid], dim=1)
         mid = self.conv_mid2(mid)
-
+        mid = self.transformer1(mid)
         x = torch.cat([x, mid], dim=1)
         
         x = self.dconv_up3(x)

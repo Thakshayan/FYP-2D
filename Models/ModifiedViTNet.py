@@ -1,6 +1,7 @@
 from torch.nn.modules.conv import Conv2d
 import torch
 import torch.nn as nn
+from .ViT import ViT
 
 
 def double_conv(in_channels, out_channels):

@@ -1,6 +1,20 @@
 import torch
 import torchvision.transforms.functional as TF
-import torchio as tio
+#import torchio as tio
+
+import numpy as np
+from scipy.ndimage import shift
+
+def verticalFlip(image, label):
+    return np.flipud(image),np.flipud(label)
+
+def horizontalFlip(image, label):
+    return np.fliplr(image), np.fliplr(label)
+
+
+def rotate(image, label):
+    return np.rot90(image), np.rot90(label)
+
 
 
 def changeContrast(image, label, contrast_factor=1.5):
@@ -27,23 +41,18 @@ def elasticFormation(image, label):
     return elastic(image.unsqueeze(0)).squeeze(0), elastic(label.unsqueeze(0)).squeeze(0)
 
 
-def verticalFlip(image, label):
-    return TF.vflip(image), TF.vflip(label)
-
-def horizontalFlip(image, label):
-    return TF.hflip(image), TF.hflip(label)
 
 
-def rotate(image, label, rotation_angle=30):
-    return TF.rotate(image, rotation_angle), TF.rotate(label, rotation_angle)
 
+def translation(image, label):
 
-def translation(image, label,horizontal_shift = 10,vertical_shift = 5):
+    # shift 10 pixels to the right and 20 pixels down
+    shift_amount = (10, 20, 0)  # (shift along height axis, shift along width axis, no shift along channel axis)
 
-    # Apply translation transformation
-    translated_image = TF.affine(image, angle=0, translate=[horizontal_shift, vertical_shift], scale=1, shear=0)
-    translated_label = TF.affine(label, angle=0, translate=[horizontal_shift, vertical_shift], scale=1, shear=0)
-
+    # perform translation
+    translated_image = shift(image, shift_amount, cval=0)
+    translated_label = shift(label, shift_amount, cval=0)
+    
     return translated_image, translated_label
 
 

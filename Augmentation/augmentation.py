@@ -3,6 +3,7 @@ import torchvision.transforms.functional as TF
 #import torchio as tio
 
 import numpy as np
+from scipy import ndimage
 from scipy.ndimage import shift
 
 def verticalFlip(image, label):
@@ -12,8 +13,9 @@ def horizontalFlip(image, label):
     return np.fliplr(image), np.fliplr(label)
 
 
-def rotate(image, label):
-    return np.rot90(image), np.rot90(label)
+def rotate(image, label, angle = 30 ):
+    #return np.rot90(image), np.rot90(label)
+    return ndimage.rotate(image, angle, reshape=False), ndimage.rotate(label, angle, reshape=False)
 
 
 

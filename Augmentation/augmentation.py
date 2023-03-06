@@ -18,6 +18,20 @@ def rotate(image, label, angle = 30 ):
     return ndimage.rotate(image, angle, reshape=False), ndimage.rotate(label, angle, reshape=False)
 
 
+def addGuassianNoise(image, label, saltPepper = True):
+    # Define the standard deviation of the Gaussian noise
+    sigma = 0.1
+
+    # Generate Gaussian noise with the same shape as the MRI images
+    noise_m = np.random.normal(loc=0, scale=sigma, size= image.shape)
+    noise_l = np.random.normal(loc=0, scale=sigma, size= image.shape)
+
+    # Add the noise to the MRI images
+    noisy_images = image + noise_m
+    noisy_labels = label + noise_l
+
+    return noisy_images, noisy_labels
+
 
 def changeContrast(image, label, contrast_factor=1.5):
     return TF.adjust_contrast(image, contrast_factor), TF.adjust_contrast( label, contrast_factor)

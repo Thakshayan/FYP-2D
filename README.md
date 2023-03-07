@@ -9,3 +9,6 @@ pip install torch torchvision torchaudio --extra-index-url https://download.pyto
 
 # for CPU
 pip install torch torchvision torchaudio
+
+# to run the web app
+streamlit run app.py

@@ -1,5 +1,6 @@
 import torch
 import torchvision.transforms.functional as TF
+import nibabel as nib
 #import torchio as tio
 
 import numpy as np
@@ -7,16 +8,34 @@ from scipy import ndimage
 from scipy.ndimage import shift
 
 def verticalFlip(image, label):
-    return np.flipud(image),np.flipud(label)
+    imgvol = np.array( image.dataobj )
+    lblvol = np.array( label.dataobj )
+    img = np.flipud(imgvol)
+    lbl = np.flipud(lblvol)
+    image = nib.Nifti1Image ( img, image.affine )
+    label = nib.Nifti1Image ( lbl, label.affine )
+    return image, label
 
 def horizontalFlip(image, label):
-    return np.fliplr(image), np.fliplr(label)
+    imgvol = np.array( image.dataobj )
+    lblvol = np.array( label.dataobj )
+    img = np.fliplr(imgvol)
+    lbl = np.fliplr(lblvol)
+    image = nib.Nifti1Image ( img, image.affine )
+    label = nib.Nifti1Image ( lbl, label.affine )
+    return image, label
 
 
 def rotate(image, label, angle = 30 ):
     #return np.rot90(image), np.rot90(label)
-    return ndimage.rotate(image, angle, reshape=False), ndimage.rotate(label, angle, reshape=False)
-
+    imgvol = np.array( image.dataobj )
+    lblvol = np.array( label.dataobj )
+    img = ndimage.rotate(imgvol, angle, reshape=False)
+    lbl = ndimage.rotate(lblvol, angle, reshape=False)
+    image = nib.Nifti1Image ( img, image.affine )
+    label = nib.Nifti1Image ( lbl, label.affine )
+    return image, label
+   
 
 def addGuassianNoise(image, label, saltPepper = True):
     # Define the standard deviation of the Gaussian noise

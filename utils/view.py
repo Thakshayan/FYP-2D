@@ -2,6 +2,7 @@ import os
 import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
+import numpy as np
 
 
 
@@ -13,9 +14,37 @@ def dir_selector(folder_path='.'):
     return os.path.join(folder_path, selected_folder)
 
 
-def plot_slice(vol, slice_ix):
+def plot_slice(slice_data):
+    
+    # Create a figure and axes
     fig, ax = plt.subplots()
+
     plt.axis('off')
-    selected_slice = vol[slice_ix, :, :]
-    ax.imshow(selected_slice, origin='lower', cmap='gray')
-    return fig
+
+    # Display the 3D numpy array as an image
+    ax.imshow(slice_data, cmap='gray')
+
+    # Display the figure in Streamlit using st.pyplot()
+    st.pyplot(fig)
+
+def plot_image_label(image, label):
+    fig, ax = plt.subplots()
+
+    # Display MRI image
+    ax.imshow(image, cmap='gray', alpha=1)
+
+    # Set alpha channel of label image
+    alpha = np.zeros_like(label)
+    alpha[label != 0] = 0.5
+
+    # Display label image
+    ax.imshow(label, cmap='jet', alpha=alpha)
+
+    # Add colorbar for label image
+    #cbar = plt.colorbar(ax.imshow(label, cmap='jet', alpha=1))
+
+    # Set title for plot
+    ax.set_title('MRI Image with Label')
+
+    # Display the figure in Streamlit using st.pyplot()
+    st.pyplot(fig)

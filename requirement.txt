@@ -6,3 +6,4 @@ einops
 torchio
 streamlit
 elasticdeform
+scikit-image

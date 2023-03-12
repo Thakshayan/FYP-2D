@@ -5,17 +5,29 @@ from streamlit import session_state
 import matplotlib.pyplot as plt
 from utils.view import plot_slice,plot_image_label
 import torch
-from Models.ViTNet import ViTNet
-from utils.transform import transform_pipeline
+from monai.networks.nets import UNet
+from monai.networks.layers import Norm
+from utils.transform import transformInput
 
+@st.cache_resource
 def load_model(model_path):
-    model = ViTNet()
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    model = UNet(
+        dimensions=3,
+        in_channels=1,
+        out_channels=1,
+        channels=( 64, 128, 256, 512), 
+        strides=(2, 2, 2, 2),
+        num_res_units=2,
+        norm=Norm.BATCH,
+    ).to(device)
     if (os.path.exists(model_path)):
         model.load_state_dict(torch.load(
-        os.path.join(model_path)))
+        os.path.join(model_path),map_location=device))
     return model
 
-model_path = './saved_models/2D_Models/best_metric_model.pth'
+
+model_path = './saved_models/3D_Models/best_metric_model.pth'
 
 # Define a directory to save the uploaded NIfTI files
 UPLOAD_DIRECTORY = "./images"
@@ -31,7 +43,7 @@ nifti_file = st.sidebar.file_uploader("Choose image to evaluate model", type=["n
 
 view = st.sidebar.button('View images')
 detect = st.sidebar.button('Detect Prostate Cancer!')
-label = None
+
 
 
 # If the user has uploaded a file, save it to the directory and display the image
@@ -44,36 +56,28 @@ if nifti_file and view:
         st.write("Saved file:", file_path)
     # Create a session state object
     session_state.file_path= file_path
-    
+    session_state.labeled = False
 
 
-if 'file_path' in session_state and 'label_path' not in session_state:
+if 'file_path' in session_state and  not session_state.labeled:
     # Load and display the NIfTI image
     nifti_image = nib.load(session_state.file_path)
     image_data = nifti_image.get_fdata()
     st.text(image_data.shape)
     slider_value = st.slider('Select a value', min_value=0, max_value=image_data.shape[2] - 1,
                          value= image_data.shape[2] //2, key='1')
-    slice_data = image_data[:,:,slider_value]
-        
-    plot_slice(slice_data)
+    
+    plot_slice(image_data,slider_value)
 
-if detect and 'file_path' in session_state:
-    #session_state.label_path = "./images/ProstateX-0000.nii.gz"
+if (detect and 'file_path' in session_state) or (not view and 'labeled' in session_state):
+    
     model = load_model(model_path)
-    transformed_image = transform_pipeline(image_data)
-    #label = model(image_data)
-    #print(label)
-    print(transformed_image)
-
-if False:
-
-    label_data = label.get_fdata()
-    st.text(label_data.shape)
-    image = nib.load(session_state.file_path)
-    image_data = image.get_fdata()
-    slider_value = st.slider('Select a value', min_value=0, max_value=image_data.shape[2] - 1,
-                         value= image_data.shape[2] //2, key='2')
-    slice_data = image_data[:,:,slider_value]
-    slice_label = label_data[:,:,slider_value]
-    plot_image_label(slice_data, slice_label)
+    nifti_image = nib.load(session_state.file_path)
+    image_data = nifti_image.get_fdata()
+    transformed_image = transformInput(image_data)
+    
+    label = model(transformed_image)
+    
+    st.text(label.shape)
+    session_state.labeled = True
+    plot_image_label(transformed_image, label)

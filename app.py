@@ -39,7 +39,7 @@ if not os.path.exists(UPLOAD_DIRECTORY):
 st.title('Web App to detect Prostate Cancer')
 
 # Add a file uploader widget to the Streamlit app
-nifti_file = st.sidebar.file_uploader("Choose image to evaluate model", type=["nii", "nii.gz"], key='file')
+nifti_file = st.sidebar.file_uploader("Choose image to check", type=["nii", "nii.gz"], key='file')
 
 view = st.sidebar.button('View images')
 detect = st.sidebar.button('Detect Prostate Cancer!')

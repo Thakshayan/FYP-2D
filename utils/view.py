@@ -6,13 +6,6 @@ import numpy as np
 
 
 
-def dir_selector(folder_path='.'):
-    dirnames = [d for d in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, d))]
-    selected_folder = st.sidebar.selectbox('Select a folder', dirnames)
-    if selected_folder is None:
-        return None
-    return os.path.join(folder_path, selected_folder)
-
 
 
 @st.cache_data
